@@ -1,0 +1,28 @@
+---
+ - hosts: kubemaster
+   tasks:
+   - name: disable firewall
+     command: "{{ item }}"
+     with_items:	
+      - systemctl stop firewalld
+      - systemctl disable firewalld
+      - systemctl enable docker
+      - systemctl enable kubelet
+      - swapoff
+   - name: Add Repo Kubernetes
+     yum_repository:
+       name: kubernetes-el7-x86_64
+       description: Install Repo Kubernetes
+       baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64 
+       gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg
+               https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+   - name: Install paket kubernetes
+     yum: pkg={{ item }} state=present
+     with_items:
+        - kubernetes-cni
+        - kubelet
+        - kubeadm
+   - name: kubeadm initialitation
+     command: kubeadm init --apiserver-advertise-address=192.168.122.136
+                                                                                        
+                                                       
